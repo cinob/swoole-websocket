@@ -2,28 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>swoole-websocket</title>
+  <title>cinob聊天室</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 <body>
-  
+  <div id="app">
+    <p v-for="item in message">
+      {{item}}
+    </p>
+    <input type="text" v-model="input">
+    <button @click="send">发送</button>
+  </div>
 </body>
 <script>
-  var wsServer = 'ws://127.0.0.1:9502';
-  var websocket = new WebSocket(wsServer);
-  websocket.onopen = function (evt) {
-      console.log("Connected to WebSocket server.");
-  };
+  var app = new Vue({
+    el: '#app',
+    data: {
+      socket: null,
+      message: [],
+      input: ''
+    },
+    methods: {
+      send () {
+        this.socket.send(this.input)
+        this.input = ''
+      },
+      showToMessage (msg) {
+        this.message.push(msg)
+      }
+    }
+  })
 
-  websocket.onclose = function (evt) {
-      console.log("Disconnected");
-  };
+  const websocket = new WebSocket('ws://47.105.99.70:8080');
+  websocket.onmessage = function (res) {
+    app.showToMessage(res.data.msg)
+  }
+  websocket.onopen = function () {
+    app.showToMessage('连接成功')
+  }
+  // websocket.onopen = function (evt) {
+  //     console.log("Connected to WebSocket server.");
+  // };
 
-  websocket.onmessage = function (evt) {
-      console.log('Retrieved data from server: ' + evt.data);
-  };
+  // websocket.onclose = function (evt) {
+  //     console.log("Disconnected");
+  // };
 
-  websocket.onerror = function (evt, e) {
-      console.log('Error occured: ' + evt.data);
-  };
+  // websocket.onmessage = function (evt) {
+  //     console.log('Retrieved data from server: ' + evt.data);
+  // };
+
+  // websocket.onerror = function (evt, e) {
+  //     console.log('Error occured: ' + evt.data);
+  // };
 </script>
 </html>
