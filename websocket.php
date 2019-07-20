@@ -19,8 +19,8 @@ $server->on('message', function ($server, $frame) {
 
 //监听关闭事件
 $server->on('close', function ($server, $fd) {
-    pushToUser($server, '用户'.$fd . '离开房间');
     $server->table->del($fd);
+    pushToUser($server, '用户'.$fd . '离开房间');
 });
 
 //开启服务
