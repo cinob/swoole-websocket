@@ -17,7 +17,7 @@ $server->on('message', function ($server, $frame) {
     $data = json_decode($frame->data, true);
     if (isset($data['name']) && isset($data['room'])) {
         $server->table->set($frame->fd, ['fd' => $data['name'],'rid'=>$data['room']]);
-        pushToUser($server, '欢迎'.$data['name']. '进入本房间', $data['room'], 0, $frame->fd);
+        pushToUser($server, '欢迎'.$data['name']. '进入本房间', $data['room']);
     } else if (isset($data['fd'])) {
         $user = $server->table->get($frame->fd);
         if ($data['fd'] > 0) {
@@ -36,7 +36,7 @@ $server->on('message', function ($server, $frame) {
 $server->on('close', function ($server, $fd) {
     $user = $server->table->get($fd);
     $server->table->del($fd);
-    pushToUser($server, $user['fd'] . '离开房间', $user['rid'], 0, $fd);
+    pushToUser($server, $user['fd'] . '离开房间', $user['rid']);
 });
 
 //开启服务
@@ -53,19 +53,20 @@ function pushToUser($server, $msg, $rid, $userId = 0, $from = 0) {
         $users = [];
         foreach ($server->table as $fd => $v) {
             if ($v['rid'] == $rid) {
-                $k = $fd == $from ? 0 : $fd;
-                $users[$k] = [
+                $users[$fd] = [
                     'fd' => $fd,
                     'name' => $v['fd']
                 ];
             }
         }
-
-        ksort($users);
-
         foreach ($users as $v) {
+            $list = $users;
+            unset($list[$v['fd']]);
+            $list[0] = $v;
+            ksort($list);
+            // var_dump($list);
             //将客户端发来的消息，推送给所有用户，也可以叫广播给所有在线客户端
-            $server->push($v['fd'], json_encode(['no' => $v['fd'], 'msg' => $msg, 'userList' => $users]));
+            $server->push($v['fd'], json_encode(['no' => $v['fd'], 'msg' => $msg, 'userList' => array_values($list)]));
         }
     }
 }
