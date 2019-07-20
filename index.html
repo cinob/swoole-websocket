@@ -57,7 +57,7 @@
             对
             <select name="" v-model="user">
               <option value="0">全体</option>
-              <option v-for="item in userList" :value="item.fd"> {{item.name}} </option>
+              <option v-for="item in userList.slice(1)" :value="item.fd"> {{item.name}} </option>
             </select>
             <input type="text" v-model="input">
             <button @click="send">发送</button>
@@ -84,7 +84,7 @@
   </div>
 </body>
 <script>
-
+  var websocket = null;
 
   var app = new Vue({
     el: '#app',
@@ -113,7 +113,7 @@
       getIntoRoom () {
         if (this.name && this.room) {
           this.isLogin = true
-          const websocket = new WebSocket('ws://192.168.1.104:8080');
+          websocket = new WebSocket('ws://192.168.1.104:8080');
           let t = this
           websocket.onmessage = function (res) {
             t.showToMessage(eval('(' + res.data + ')').msg)

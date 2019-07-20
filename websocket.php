@@ -17,16 +17,16 @@ $server->on('message', function ($server, $frame) {
     $data = json_decode($frame->data, true);
     if (isset($data['name']) && isset($data['room'])) {
         $server->table->set($frame->fd, ['fd' => $data['name'],'rid'=>$data['room']]);
-        pushToUser($server, '欢迎'.$data['name']. '进入本房间', $data['room']);
+        pushToUser($server, '欢迎'.$data['name']. '进入本房间', $data['room'], 0, $frame->fd);
     } else if (isset($data['fd'])) {
         $user = $server->table->get($frame->fd);
         if ($data['fd'] > 0) {
             $msg = [
-                $user['name'] . '对你私聊说：' . $data['info'],
-                '你对'.$user['name'].'私聊说：' . $data['info']
+                $user['fd'] . '对你私聊说：' . $data['info'],
+                '你对'.$user['fd'].'私聊说：' . $data['info']
             ];
         } else {
-            $msg = $user['name'] . '对大家说：' . $data['info'];
+            $msg = $user['fd'] . '对大家说：' . $data['info'];
         }
         pushToUser($server, $msg, $user['rid'], $data['fd'], $frame->fd);
     }
@@ -36,7 +36,7 @@ $server->on('message', function ($server, $frame) {
 $server->on('close', function ($server, $fd) {
     $user = $server->table->get($fd);
     $server->table->del($fd);
-    pushToUser($server, $user['name'] . '离开房间', $user['rid']);
+    pushToUser($server, $user['fd'] . '离开房间', $user['rid'], 0, $fd);
 });
 
 //开启服务
@@ -53,12 +53,16 @@ function pushToUser($server, $msg, $rid, $userId = 0, $from = 0) {
         $users = [];
         foreach ($server->table as $fd => $v) {
             if ($v['rid'] == $rid) {
-                $users[] = [
+                $k = $fd == $from ? 0 : $fd;
+                $users[$k] = [
                     'fd' => $fd,
                     'name' => $v['fd']
                 ];
             }
         }
+
+        ksort($users);
+
         foreach ($users as $v) {
             //将客户端发来的消息，推送给所有用户，也可以叫广播给所有在线客户端
             $server->push($v['fd'], json_encode(['no' => $v['fd'], 'msg' => $msg, 'userList' => $users]));
