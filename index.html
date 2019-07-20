@@ -36,12 +36,18 @@
         </div>
       </div>
       <div>
+        对
+        <select name="" v-model="user">
+          <option value="0">全体</option>
+          <option v-for="item in userList" :value="item.fd"> {{item.name}} </option>
+        </select>
+        发送:
         <input type="text" v-model="input">
         <button @click="send">发送</button>
       </div>
     </div>
     <div class="chat-r border">
-        <div v-for="item in userList">
+        <div v-for="item in userList" @click="">
           {{item.name}}
         </div>
     </div>
@@ -54,21 +60,23 @@
   var app = new Vue({
     el: '#app',
     data: {
+      user: 0,
       message: [],
       input: '',
       userList: []
     },
     methods: {
       send () {
-        websocket.send(this.input)
+        websocket.send('{"info": "'+this.input+'","fd": '+this.user+'}')
         this.input = ''
       },
       showToMessage (msg) {
         this.message.push(msg)
       },
       addUser (user) {
-        console.log(user)
-        this.userList = user
+        if (user.length > 0) {
+          this.userList = user
+        }
       }
     }
   })
