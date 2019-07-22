@@ -13,7 +13,7 @@ $server->set([
     // 守护进程
     'daemonize' => 1,
     // 指定错误日志文件
-    'log_file' => '/swoole.log'
+    'log_file' => './swoole.log'
 ]);
 
 //监听连接事件
