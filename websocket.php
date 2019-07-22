@@ -6,7 +6,7 @@ $table->column('rid', swoole_table::TYPE_INT, 10);
 $table->create();
 
 // 实例化websocket服务
-$server = new swoole_websocket_server('0.0.0.0', 8080);
+$server = new swoole_websocket_server('0.0.0.0', 8080, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
 $server->table = $table;
 
 $server->set([
