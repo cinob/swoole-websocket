@@ -46,6 +46,10 @@
   <div id="app">
     <div v-if="isLogin">
       房间{{room}} <button @click="logOut">退出房间</button>
+      <div>
+        <video autoplay id="sourcevid" :src="vsrc" style="width:100%;"></video>
+        <canvas id="canvas" style="display:none"></canvas>
+      </div>
       <div class="box">
         <div class="chat-l">
           <div class="content border">
@@ -85,6 +89,8 @@
 </body>
 <script>
   var websocket = null;
+  var canvas = document.getElementById('canvas')
+  var context = canvas.getContext('2d')
 
   var app = new Vue({
     el: '#app',
@@ -96,7 +102,8 @@
       message: [],
       input: '',
       userList: [],
-      pushNotify: false
+      pushNotify: false,
+      vsrc: ''
     },
     methods: {
       send () {
@@ -126,6 +133,8 @@
           websocket.onopen = function () {
             websocket.send('{"name": "'+t.name+'","room": "'+t.room+'"}')
           }
+          this.startVideo()
+          this.draw
         }
       },
       logOut () {
@@ -147,6 +156,32 @@
             }
           })
         }
+      },
+      startVideo () {
+
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia || navigator.msGetUserMedia
+        navigator.getUserMedia({
+          video:true, audio:true
+        }, this.success, console.log)
+      },
+      success: function (stream) {
+        this.vsrc = window.URL.createObjectURL(stream)
+      },
+      draw: function () {
+        try{
+            context.drawImage(document.getElementsByTagName('video')[0], 0, 0, this.output.width, this.output.height);
+        }catch(e){
+            if (e.name == "NS_ERROR_NOT_AVAILABLE") {
+                return setTimeout(this.draw, 100);
+            } else {
+                throw e;
+            }
+        }
+        if(this.vsrc){
+            // websocket.send('{"info": "'+this.output.toDataURL("image/jpeg", 0.5)+'","fd": '+this.user+'}')
+        }
+        setTimeout(this.draw, 100);
       }
     },
     mounted: function () {
