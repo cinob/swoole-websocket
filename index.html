@@ -7,8 +7,8 @@
   <link href="https://vjs.zencdn.net/7.6.0/video-js.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
-<!--   <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
-  <script src='https://vjs.zencdn.net/7.6.0/video.js'></script> -->
+  <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+  <script src='https://vjs.zencdn.net/7.6.0/video.js'></script>
   <style>
     .box {
       display: flex;
@@ -57,7 +57,7 @@
       <!--   <video autoplay id="video" class="video-js vjs-default-skin" controls preload="none" >
         <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
       </video> -->
-        <video autoplay id="video" style="width:100%;"></video>
+        <video autoplay id="video" style="width:100%;" class="video-js vjs-default-skin" controls preload="none"></video>
         <canvas id="canvas"></canvas>
       </div>
       <div v-show="!isliving" class="box">
@@ -170,7 +170,7 @@
       },
       draw: function () {
         try{
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height)
         }catch(e){
             if (e.name == "NS_ERROR_NOT_AVAILABLE") {
                 return setTimeout(this.draw, 100);
