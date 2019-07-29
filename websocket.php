@@ -31,7 +31,7 @@ $server->on('message', function ($server, $frame) {
         $info = $server->table->get($frame->fd);
         foreach ($server->table as $fd => $v) {
             if ($v['rid'] == $info['rid'] && $v['isLive'] == 1 && $fd != $frame->fd) {
-               if ($server->isEstablished($v['fd'])) {
+               if ($server->isEstablished($fd)) {
                     $server->push($fd, json_encode(['live' => $data['live']]));
                 }
             }
