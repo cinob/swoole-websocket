@@ -57,8 +57,11 @@
       <!--   <video autoplay id="video" class="video-js vjs-default-skin" controls preload="none" >
         <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
       </video> -->
-        <video autoplay id="video" style="width:300px;height:200px;" class="video-js vjs-default-skin" controls preload="none"></video>
-        <canvas id="canvas" width="300" height="200"></canvas>
+        <div v-if="imgSrc.length == 0">
+          <video autoplay id="video" width="300" height="200" style="width:300px;height:200px;" class="video-js vjs-default-skin" controls preload="none"></video>
+          <canvas id="canvas" width="300" height="200" style="display: none"></canvas>
+        </div>
+        <img v-else id="receiver" :src="imgSrc" style="width:300px;height:200px"/>
       </div>
       <div v-show="!isliving" class="box">
         <div class="chat-l">
@@ -114,7 +117,8 @@
       input: '',
       userList: [],
       pushNotify: false,
-      isliving: false
+      isliving: false,
+      imgSrc: ''
     },
     methods: {
       send () {
@@ -138,8 +142,13 @@
           websocket = new WebSocket('ws://192.168.0.152:8080');
           let t = this
           websocket.onmessage = function (res) {
-            t.showToMessage(eval('(' + res.data + ')').msg)
-            t.addUser(eval('(' + res.data + ')').userList)
+            let data = eval('(' + res.data + ')')
+            if ( data.live ) {
+              this.imgSrc = data.live
+            } else {
+              t.showToMessage(data.msg)
+              t.addUser(data.userList)
+            }
           }
           websocket.onopen = function () {
             websocket.send('{"name": "'+t.name+'","room": "'+t.room+'"}')
@@ -169,7 +178,10 @@
       },
       draw () {
         this.drawing = window.setInterval(function () {
-          this.context.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);  
+          this.context.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height)
+          if(video.src){
+            websocket.send('{"live": "'+this.context.toDataURL("image/jpeg", 0.5)+'"}');
+          }
         }, 60)
       },
       conLiving: function () {
@@ -183,8 +195,8 @@
         clearTimeOut(this.drawing)
       },
       getMedia () {
-        if (navigator.getUserMedia) {
-          navigator.getUserMedia({
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({
             video: true,
             audio: true
           }, this.successFunc, this.errorFunc);    //success是获取成功的回调函数  

@@ -3,6 +3,7 @@
 $table = new Swoole\Table(1024);
 $table->column('name', swoole_table::TYPE_STRING, 32);
 $table->column('rid', swoole_table::TYPE_INT, 10);
+$table->column('isLive', swoole_table::TYPE_INT, 1);
 $table->create();
 
 // 实例化websocket服务
@@ -24,9 +25,30 @@ $server->on('open', function ($server, $request) {
 //监听接收消息事件
 $server->on('message', function ($server, $frame) {
     $data = json_decode($frame->data, true);
-    if (isset($data['name']) && isset($data['room'])) {
+
+    if (isset($data['live'])) {
+        // 直播
+        $info = $server->table->get($frame->fd);
+        foreach ($server->table as $fd => $v) {
+            if ($v['rid'] == $info['rid'] && $v['isLive'] == 1 && $fd != $frame->fd) {
+               if ($server->isEstablished($v['fd'])) {
+                    $server->push($fd, json_encode(['live' => $data['live']]));
+                }
+            }
+        }
+    } else if (isset($data['disConnetToLive'])) {
+        // 离开直播
+        $info = $server->table->get($frame->fd);
+        $info['isLive'] = 0;
+        $server->table->set($frame->fd, $info);
+    } else if (isset($data['connetToLive'])) {
+        // 进入直播
+        $info = $server->table->get($frame->fd);
+        $info['isLive'] = 1;
+        $server->table->set($frame->fd, $info);
+    } else if (isset($data['name']) && isset($data['room'])) {
         // 进入房间，保存用户名及房间号
-        $server->table->set($frame->fd, ['name' => $data['name'],'rid'=>$data['room']]);
+        $server->table->set($frame->fd, ['name' => $data['name'],'rid'=>$data['room'], 'isLive'=>0]);
         // 向所有用户推送消息
         pushToUser($server, '欢迎'.$data['name']. '进入本房间', $data['room']);
     } else if (isset($data['fd'])) {
