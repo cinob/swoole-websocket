@@ -194,14 +194,14 @@
       getMedia () {
         if (navigator.getUserMedia) {
           navigator.getUserMedia({
-            'video': true,
-            'audio': true
+            video: true,
+            audio: true
           }, this.successFunc, this.errorFunc);    //success是获取成功的回调函数  
         } else {
           alert('您的浏览器版本太低，不支持开启摄像头');
         }
       },
-      successFunc (stream) {  
+      successFunc (stream) {
         video.src = window.URL.createObjectURL(stream);
       },
       errorFunc(e) {  
