@@ -173,7 +173,7 @@
             context.drawImage(video, 0, 0, canvas.width, canvas.height)
         }catch(e){
             if (e.name == "NS_ERROR_NOT_AVAILABLE") {
-                return setTimeout(this.draw, 100);
+                return setTimeout(this.draw(), 100);
             } else {
                 throw e;
             }
@@ -181,7 +181,7 @@
         if(video.src){
             // websocket.send('{"info": "'+canvas.toDataURL("image/jpeg", 0.5)+'","fd": '+this.user+'}')
         }
-        setTimeout(this.draw, 100);
+        setTimeout(this.draw(), 100);
       },
       conLiving: function () {
         this.getMedia()
