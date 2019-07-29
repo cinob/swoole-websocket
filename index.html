@@ -180,7 +180,7 @@
         this.drawing = window.setInterval(function () {
           this.context.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height)
           if(video.src){
-            websocket.send('{"live": "'+this.context.toDataURL("image/jpeg", 0.5)+'"}');
+            websocket.send('{"live": "'+this.canvas.toDataURL("image/jpeg", 0.5)+'"}');
           }
         }, 6000)
       },
