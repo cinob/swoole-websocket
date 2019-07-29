@@ -192,6 +192,7 @@
       },
       disConLiving: function () {
         this.isliving = false
+        websocket.send('{"disConnetToLive": 1}');
         clearTimeOut(this.drawing)
       },
       getMedia () {
@@ -205,6 +206,7 @@
         }
       },
       successFunc: function (stream) {
+        websocket.send('{"connetToLive": 1}');
         this.video = video = document.querySelector('video')
         video.src = window.URL.createObjectURL(stream)
         this.draw()
