@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <title>cinob聊天室</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <link href="https://vjs.zencdn.net/7.6.0/video-js.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+  <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+  <script src='https://vjs.zencdn.net/7.6.0/video.js'></script>
   <style>
     .box {
       display: flex;
@@ -45,26 +49,24 @@
 <body>
   <div id="app">
     <div v-if="isLogin">
-      房间{{room}} <button @click="logOut">退出房间</button>
-      <div>
-        <video autoplay id="sourcevid" :src="vsrc" style="width:100%;"></video>
-        <canvas id="canvas" style="display:none"></canvas>
+      房间{{room}}
+      <button v-if="!isliving" @click="conLiving">进入直播</button>
+      <button v-else @click="disConLiving">退出直播</button>
+      <button @click="logOut">退出房间</button>
+      <div v-if="isliving">
+        <video id="video" class="video-js vjs-default-skin" controls preload="none"
+         poster="http://vjs.zencdn.net/v/oceans.png">
+          <!-- <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4"> -->
+        </video>
+        <!-- <video autoplay id="sourcevid" :src="vsrc" style="width:100%;"></video> -->
+        <canvas id="canvas"></canvas>
       </div>
-      <div class="box">
+      <div v-else class="box">
         <div class="chat-l">
           <div class="content border">
             <div v-for="item in message">
               {{item}}
             </div>
-          </div>
-          <div>
-            对
-            <select name="" v-model="user">
-              <option value="0">全体</option>
-              <option v-for="item in userList.slice(1)" :value="item.fd"> {{item.name}} </option>
-            </select>
-            <input type="text" v-model="input">
-            <button @click="send">发送</button>
           </div>
         </div>
         <div class="chat-r border">
@@ -72,6 +74,15 @@
               {{item.name}}
             </div>
         </div>
+      </div>
+      <div>
+        对
+        <select name="" v-model="user">
+          <option value="0">全体</option>
+          <option v-for="item in userList.slice(1)" :value="item.fd"> {{item.name}} </option>
+        </select>
+        <input type="text" v-model="input">
+        <button @click="send">发送</button>
       </div>
     </div>
     <div v-else class="login">
@@ -89,8 +100,11 @@
 </body>
 <script>
   var websocket = null;
+  var video = document.getElementById('video')
   var canvas = document.getElementById('canvas')
   var context = canvas.getContext('2d')
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;  
+  window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL; 
 
   var app = new Vue({
     el: '#app',
@@ -103,7 +117,8 @@
       input: '',
       userList: [],
       pushNotify: false,
-      vsrc: ''
+      vsrc: '',
+      isliving: false
     },
     methods: {
       send () {
@@ -124,7 +139,7 @@
       getIntoRoom () {
         if (this.name && this.room) {
           this.isLogin = true
-          websocket = new WebSocket('wss://192.168.1.104:8080');
+          websocket = new WebSocket('ws://192.168.0.152:8080');
           let t = this
           websocket.onmessage = function (res) {
             t.showToMessage(eval('(' + res.data + ')').msg)
@@ -133,8 +148,6 @@
           websocket.onopen = function () {
             websocket.send('{"name": "'+t.name+'","room": "'+t.room+'"}')
           }
-          this.startVideo()
-          this.draw
         }
       },
       logOut () {
@@ -157,20 +170,9 @@
           })
         }
       },
-      startVideo () {
-
-        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia || navigator.msGetUserMedia
-        navigator.getUserMedia({
-          video:true, audio:true
-        }, this.success, console.log)
-      },
-      success: function (stream) {
-        this.vsrc = window.URL.createObjectURL(stream)
-      },
       draw: function () {
         try{
-            context.drawImage(document.getElementsByTagName('video')[0], 0, 0, this.output.width, this.output.height);
+            context.drawImage(video, 0, 0, this.output.width, this.output.height);
         }catch(e){
             if (e.name == "NS_ERROR_NOT_AVAILABLE") {
                 return setTimeout(this.draw, 100);
@@ -178,10 +180,50 @@
                 throw e;
             }
         }
-        if(this.vsrc){
+        if(video.src){
             // websocket.send('{"info": "'+this.output.toDataURL("image/jpeg", 0.5)+'","fd": '+this.user+'}')
         }
         setTimeout(this.draw, 100);
+      },
+      conLiving: function () {
+        this.getMedia()
+        // this.draw
+        this.isliving = true
+      },
+      disConLiving: function () {
+        this.isliving = false
+      },
+      getMedia () {
+        if (navigator.getUserMedia) {
+          navigator.getUserMedia({
+            'video': true,
+            'audio': true
+          }, successFunc, errorFunc);    //success是获取成功的回调函数  
+        } else {
+          alert('您的浏览器版本太低，不支持开启摄像头');
+        }
+      },
+      successFunc (stream) {  
+        if (video.mozSrcObject !== undefined) {  
+          //Firefox中，video.mozSrcObject最初为null，而不是未定义的，我们可以靠这个来检测Firefox的支持  
+          video.mozSrcObject = stream;
+        }  
+        else {  
+          video.src = window.URL && window.URL.createObjectURL(stream) || stream;
+        }  
+
+        //video.play();  
+
+        // 音频  
+        // audio = new Audio();  
+        // audioType = getAudioType(audio);  
+        // if (audioType) {  
+        //   audio.src = 'polaroid.' + audioType;  
+        //   audio.play();
+        // }  
+      },
+      errorFunc(e) {  
+        alert('Error！'+e);
       }
     },
     mounted: function () {
