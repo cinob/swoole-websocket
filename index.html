@@ -170,7 +170,7 @@
       },
       draw: function () {
         try{
-            context.drawImage(video, 0, 0, this.output.width, this.output.height);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
         }catch(e){
             if (e.name == "NS_ERROR_NOT_AVAILABLE") {
                 return setTimeout(this.draw, 100);
@@ -179,7 +179,7 @@
             }
         }
         if(video.src){
-            // websocket.send('{"info": "'+this.output.toDataURL("image/jpeg", 0.5)+'","fd": '+this.user+'}')
+            // websocket.send('{"info": "'+canvas.toDataURL("image/jpeg", 0.5)+'","fd": '+this.user+'}')
         }
         setTimeout(this.draw, 100);
       },
