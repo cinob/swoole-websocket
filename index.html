@@ -185,6 +185,7 @@
         }, 6000)
       },
       conLiving: function () {
+        websocket.send('{"connetToLive": 1}');
         this.canvas = canvas = document.getElementById('canvas')
         this.context = context = canvas.getContext('2d')
         this.getMedia()
@@ -206,7 +207,6 @@
         }
       },
       successFunc: function (stream) {
-        websocket.send('{"connetToLive": 1}');
         this.video = video = document.querySelector('video')
         video.src = window.URL.createObjectURL(stream)
         this.draw()
