@@ -27,14 +27,16 @@ $server->on('message', function ($server, $frame) {
     $data = json_decode($frame->data, true);
 
     if (isset($data['live'])) {
+        var_dump($data);
+        // echo '直播' . PHP_EOL;
         // 直播
         $info = $server->table->get($frame->fd);
         foreach ($server->table as $fd => $v) {
-            // if ($v['rid'] == $info['rid'] && $v['isLive'] == 1 && $fd != $frame->fd) {
-            //     if ($server->isEstablished($fd)) {
+            if ($v['rid'] == $info['rid'] && $v['isLive'] == 1 && $fd != $frame->fd) {
+                if ($server->isEstablished($fd)) {
                     $server->push($fd, json_encode(['live' => $data['live']]));
-                // }
-            // }
+                }
+            }
         }
     } else if (isset($data['disConnetToLive'])) {
         // 离开直播
