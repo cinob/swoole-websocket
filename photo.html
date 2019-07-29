@@ -1,18 +1,17 @@
-
 <!DOCTYPE html>  
+<html lang="en">
 <head>  
     <title>HTML5 GetUserMedia Demo</title>  
      <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />  
 </head>  
 <body>  
-    <input type="button" title="开启摄像头" value="开启摄像头" οnclick="getMedia();" /><br />  
+    <input type="button" title="开启摄像头" value="开启摄像头" onclick="getMedia()" /><br />  
     <video height="120px" autoplay="autoplay"></video><hr />  
-    <input type="button" title="拍照" value="拍照" οnclick="getPhoto();" /><br />  
+    <input type="button" title="拍照" value="拍照" onclick="getPhoto()" /><br />  
     <canvas id="canvas1" height="120px" ></canvas><hr />  
-    <input type="button" title="视频" value="视频" οnclick="getVedio();" /><br />  
-    <canvas id="canvas2" height="120px"></canvas>  
-  
+    <input type="button" title="视频" value="视频" onclick="getVedio()" /><br />  
+    <canvas id="canvas2" height="120px"></canvas>
     <script type="text/javascript">  
         var video = document.querySelector('video');  
         var audio, audioType;  
@@ -27,15 +26,15 @@
         window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;  
   
         var exArray = []; //存储设备源ID  
-        MediaStreamTrack.getSources(function (sourceInfos) {  
-            for (var i = 0; i != sourceInfos.length; ++i) {  
-                var sourceInfo = sourceInfos[i];  
-                //这里会遍历audio,video，所以要加以区分  
-                if (sourceInfo.kind === 'video') {  
-                    exArray.push(sourceInfo.id);  
-                }  
-            }  
-        });  
+        // MediaStreamTrack.getSources(function (sourceInfos) {  
+        //     for (var i = 0; i != sourceInfos.length; ++i) {  
+        //         var sourceInfo = sourceInfos[i];  
+        //         //这里会遍历audio,video，所以要加以区分  
+        //         if (sourceInfo.kind === 'video') {  
+        //             exArray.push(sourceInfo.id);  
+        //         }  
+        //     }  
+        // });  
   
         function getMedia() {  
             if (navigator.getUserMedia) {  
@@ -98,9 +97,9 @@
         }  
   
         // vedio播放时触发，绘制vedio帧图像到canvas  
-//        video.addEventListener('play', function () {  
-//            drawVideoAtCanvas(video, context2);  
-//        }, false);  
+        // video.addEventListener('play', function () {  
+        //    drawVideoAtCanvas(video, context2);  
+        // }, false);  
   
         //拍照  
         function getPhoto() {  
@@ -113,3 +112,5 @@
         }  
   
     </script>  
+</body>
+</html>
