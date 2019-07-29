@@ -203,23 +203,7 @@
         }
       },
       successFunc (stream) {  
-        if (video.mozSrcObject !== undefined) {  
-          //Firefox中，video.mozSrcObject最初为null，而不是未定义的，我们可以靠这个来检测Firefox的支持  
-          video.mozSrcObject = stream;
-        }  
-        else {  
-          video.src = window.URL && window.URL.createObjectURL(stream) || stream;
-        }  
-
-        //video.play();  
-
-        // 音频  
-        // audio = new Audio();  
-        // audioType = getAudioType(audio);  
-        // if (audioType) {  
-        //   audio.src = 'polaroid.' + audioType;  
-        //   audio.play();
-        // }  
+        video.src = window.URL.createObjectURL(stream);
       },
       errorFunc(e) {  
         alert('Error！'+e);
