@@ -201,7 +201,8 @@
           alert('您的浏览器版本太低，不支持开启摄像头');
         }
       },
-      successFunc (stream) {
+      successFunc: function (stream) {
+        alert('success')
         video.src = window.URL.createObjectURL(stream);
       },
       errorFunc(e) {  
