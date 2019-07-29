@@ -54,8 +54,7 @@
       <button v-else @click="disConLiving">退出直播</button>
       <button @click="logOut">退出房间</button>
       <div v-if="isliving">
-        <video id="video" class="video-js vjs-default-skin" controls preload="none"
-         poster="http://vjs.zencdn.net/v/oceans.png">
+        <video id="video" class="video-js vjs-default-skin" controls preload="none" >
           <!-- <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4"> -->
         </video>
         <!-- <video autoplay id="sourcevid" :src="vsrc" style="width:100%;"></video> -->
@@ -198,7 +197,7 @@
           navigator.getUserMedia({
             'video': true,
             'audio': true
-          }, successFunc, errorFunc);    //success是获取成功的回调函数  
+          }, this.successFunc, this.errorFunc);    //success是获取成功的回调函数  
         } else {
           alert('您的浏览器版本太低，不支持开启摄像头');
         }
