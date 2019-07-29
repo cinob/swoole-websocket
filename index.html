@@ -54,7 +54,7 @@
       <button v-else @click="disConLiving">退出直播</button>
       <button @click="logOut">退出房间</button>
       <div v-if="isliving">
-        <video id="video" class="video-js vjs-default-skin" controls preload="none" >
+        <video autoplay id="video" class="video-js vjs-default-skin" controls preload="none" >
           <!-- <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4"> -->
         </video>
         <!-- <video autoplay id="sourcevid" :src="vsrc" style="width:100%;"></video> -->
