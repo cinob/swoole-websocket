@@ -7,8 +7,8 @@
   <link href="https://vjs.zencdn.net/7.6.0/video-js.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
-  <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
-  <script src='https://vjs.zencdn.net/7.6.0/video.js'></script>
+  <!-- <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+  <script src='https://vjs.zencdn.net/7.6.0/video.js'></script> -->
   <style>
     .box {
       display: flex;
@@ -57,8 +57,8 @@
       <!--   <video autoplay id="video" class="video-js vjs-default-skin" controls preload="none" >
         <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
       </video> -->
-        <video autoplay id="video" style="width:100%;" class="video-js vjs-default-skin" controls preload="none"></video>
-        <canvas id="canvas"></canvas>
+        <video autoplay id="video" style="width:300px;height:200px;" class="video-js vjs-default-skin" controls preload="none"></video>
+        <canvas id="canvas" width="300" height="200"></canvas>
       </div>
       <div v-show="!isliving" class="box">
         <div class="chat-l">
@@ -99,9 +99,7 @@
 </body>
 <script>
   var websocket = null;
-  var video;
-  var canvas = document.getElementById('canvas')
-  var context = canvas.getContext('2d')
+  var video,canvas,context;
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;  
   window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL; 
 
@@ -168,22 +166,14 @@
           })
         }
       },
-      draw: function () {
-        try{
-            context.drawImage(video, 0, 0, canvas.width, canvas.height)
-        }catch(e){
-            if (e.name == "NS_ERROR_NOT_AVAILABLE") {
-                return setTimeout(this.draw(), 100);
-            } else {
-                throw e;
-            }
-        }
-        if(video.src){
-            // websocket.send('{"info": "'+canvas.toDataURL("image/jpeg", 0.5)+'","fd": '+this.user+'}')
-        }
-        setTimeout(this.draw(), 100);
+      draw () {
+        window.setInterval(function () {
+          this.context.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);  
+        }, 6000)
       },
       conLiving: function () {
+        this.canvas = canvas = document.getElementById('canvas')
+        this.context = context = canvas.getContext('2d')
         this.getMedia()
         this.isliving = true
       },
@@ -201,11 +191,11 @@
         }
       },
       successFunc: function (stream) {
-        video = document.querySelector('video')
+        this.video = video = document.querySelector('video')
         video.src = window.URL.createObjectURL(stream)
-        this.draw
+        this.draw()
       },
-      errorFunc(e) {  
+      errorFunc(e) {
         alert('Error！'+e);
       }
     },
