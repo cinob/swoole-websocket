@@ -59,9 +59,9 @@
       </video> -->
         <div v-if="imgSrc.length == 0">
           <video autoplay id="video" width="300" height="200" style="width:300px;height:200px;" class="video-js vjs-default-skin" controls preload="none"></video>
-          <canvas id="canvas" width="300" height="200" style="display: none"></canvas>
+          <canvas id="canvas" width="300" height="200"></canvas>
         </div>
-        <img v-else id="receiver" :src="imgSrc" style="width:300px;height:200px"/>
+        <img v-else :src="imgSrc" style="width:300px;height:200px"/>
       </div>
       <div v-show="!isliving" class="box">
         <div class="chat-l">
@@ -182,7 +182,7 @@
           if(video.src){
             websocket.send('{"live": "'+this.context.toDataURL("image/jpeg", 0.5)+'"}');
           }
-        }, 60)
+        }, 6000)
       },
       conLiving: function () {
         this.canvas = canvas = document.getElementById('canvas')
